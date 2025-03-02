@@ -7,9 +7,10 @@
 Для работы программы предварительно необходимо установить такие библиотеки как:
 - tk
 - numpy
+- scipy
 - matplotlib
 
 Для их установки воспользуйтесь командой:
 ```
-pip install tk numpy matplotlib
+pip install -r requirements.txt
 ```
