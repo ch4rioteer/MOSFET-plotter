@@ -35,8 +35,8 @@ class Gui:
         # Создание полей ввода
         self.entries = {}
         for row, (key, (text, default)) in enumerate(self.parameters.items()):
-            ttk.Label(self.frame, text=text, font="System 10").grid(row=row, column=0, sticky=tk.W, padx=5, pady=2)
-            entry = ttk.Entry(self.frame, font="Terminal 10")
+            ttk.Label(self.frame, text=text).grid(row=row, column=0, sticky=tk.W, padx=5, pady=2)
+            entry = ttk.Entry(self.frame)
             entry.insert(0, str(default))
             entry.grid(row=row, column=1, padx=5, pady=2)
             self.entries[key] = entry
@@ -49,34 +49,36 @@ class Gui:
 
         # Область для графика
         self.canvas_frame = tk.Frame(self.root)
-        self.canvas_frame.pack(side=tk.RIGHT, padx=10, pady=10, fill=tk.BOTH)
+        self.canvas_frame.pack(side=tk.RIGHT, padx=5, pady=5, fill=tk.BOTH)
 
         self.fig, self.ax = plt.subplots()
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.canvas_frame)
-        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-
+        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        self.ax.set_title("Выходная характеристика")
+        self.ax.set_xlabel("Uси, В")
+        self.ax.set_ylabel("Iс, мА")
+        
         self.root.mainloop()
 
     def update_plot(self):
         x = calc.U_ds
         self.ax.clear()
-        self.ax.set_title("Выходная характеристика")
-        self.ax.set_xlabel("Uси, В")
-        self.ax.set_ylabel("Iс, А")
-        self.ax.grid(axis='both')
-
+        
         # Получение значений из полей 
         try:
             params = [float(entry[1]) for entry in self.parameters.values()]
 
             for i in range(5, 0, -1):  # U_gsi от 5 до 1 В
-                y = calc.mosfet_vds(*params, U_gsi=i)
+                y = [x * 1000 for x in calc.mosfet_vds(*params, U_gsi=i)]
                 self.ax.plot(x, y, label=f"Uзи = {i}В")
 
         except ValueError as e:
             tk.messagebox.showerror("Ошибка ввода", f"Некорректное значение: {str(e)}")
         else:
-            self.ax.grid()
+            self.ax.set_title("Выходная характеристика")
+            self.ax.set_xlabel("Uси, В")
+            self.ax.set_ylabel("Iс, мА")
+            self.ax.grid(axis='both')
             self.ax.legend()
             self.canvas.draw()
 
